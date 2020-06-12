@@ -34,7 +34,8 @@ export default {
   */
   plugins: [
     '@/plugins/panel.js',
-    '~/plugins/date-filter'
+    '~/plugins/date-filter',
+    '~/plugins/vee-validate'
   ],
   router: {
     middleware: 'auth'
