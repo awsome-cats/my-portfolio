@@ -1,57 +1,67 @@
 <template>
   <div>
-      <b-jumbotron header="My Portfolio" lead="For more information visit website">
-        <p>アプリケーションをご覧の方はこちらへどうぞ</p>
-        <b-button  variant="primary" href="/">TopPage</b-button>
-      </b-jumbotron>
-      <div class="container">
+    <b-jumbotron header="My Portfolio" lead="For more information visit website">
+      <p>アプリケーションをご覧の方はこちらへどうぞ</p>
+      <b-button  variant="primary" href="/">TopPage</b-button>
+    </b-jumbotron>
+    <div class="container">
       <!-- ここから -->
       <div class="col-lg-6 mx-auto ">
-          <div class="text-center">
-            <b-spinner 
-            v-if="isLoading"
-            variant="primary" 
-            type="grow" 
-            label="Spinning"
-            >
+        <div class="text-center">
+          <b-spinner 
+          v-if="isLoading"
+          variant="primary" 
+          type="grow" 
+          label="Spinning"
+          >
           </b-spinner>
-          </div>
         </div>
-        <h1>Hello</h1>
-        <form @submit.prevent>
-          <div class="form-group">
-            <input
-              id="nuxt-email"
-              v-model="account.email"
-              type="email"
-              name="email"
-              placeholder="Emailを入れて下さい"
-              class="form-control"
-            >
-          </div>
-          <div class="form-group">
-            <input
-              id="nuxt-password"
-              v-model="account.password"
-              type="password"
-              name="password"
-              placeholder="パスワードを入れて下さい"
-              class="form-control"
-            >
-          </div>
-          <div class="form-group">
-            <b-button @click="login" variant="primary">ログイン</b-button>
-          </div>
-          <div v-if="isError" class="alert alert-danger">
-            {{ errMsg }}
-          </div>
+      </div>
+      <h1>Hello</h1>
+      <form @submit.prevent>
+        <div class="form-group">
+          <input
+            id="nuxt-email"
+            v-model="account.email"
+            v-validate="'required|email'"
+            type="email"
+            name="email"
+            placeholder="Emailを入れて下さい"
+            class="form-control"
+            :class="{'text-danger': errors.has('email')}"
+          >
+          <p v-show="errors.has('email')" class="text-danger">
+            {{ errors.first('email') }}
+          </p>
+        </div>
+        <div class="form-group">
+          <input
+            id="nuxt-password"
+            v-model="account.password"
+            v-validate="'required|min:6'"
+            type="password"
+            name="password"
+            placeholder="パスワードを入れて下さい"
+            class="form-control"
+            :class="{'text-danger': errors.has('password')}"
+          >
+          <p v-show="errors.has('password')" class="text-danger">
+            {{ errors.first('password') }}
+          </p>
+        </div>
+        <div class="form-group">
+          <b-button @click="login" variant="primary">ログイン</b-button>
+        </div>
+        <div v-if="isError" class="alert alert-danger">
+          {{ errMsg }}
+        </div>
         <nuxt-link to="/about">
           About page
         </nuxt-link>
       </form>
-      </div>
+    </div>
       <!-- ここまで -->
-   </div>
+  </div>
 </template>
 
 
@@ -77,7 +87,12 @@ export default {
   methods: {
     login() {
       this.isLoading = true
-      this.$store.dispatch('user/login', this.account)
+      this.$validator.validateAll()
+      .then(result => {
+        if (result) {
+           this.$store.dispatch('user/login', this.account)
+        }
+      })
       .catch(error => {
         this.isError = true
         this.errMsg = error.message
@@ -86,7 +101,9 @@ export default {
         }, 5000)
       })
       .then(() => {
-         this.$router.push('/admin')
+        setTimeout(() => {
+          this.$router.push('/admin')
+        }, 2000)
       })
     }
   }
