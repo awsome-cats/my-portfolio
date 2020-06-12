@@ -16,6 +16,7 @@
 <script>
 import adminPostForm from '@/components/adminPostForm'
 export default {
+  layout: 'admin-page',
   components: {
     adminPostForm
   },

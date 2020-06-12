@@ -19,7 +19,7 @@ import Articles from '@/components/Articles'
 import { mapGetters } from 'vuex'
 
 export default {
-  layout: 'admin',
+  layout: 'admin-page',
   middleware: 'auth',
   components: {
     Articles

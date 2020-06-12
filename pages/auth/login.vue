@@ -1,21 +1,21 @@
 <template>
-  <div id="app">
-    <v-app>
+  <div>
       <b-jumbotron header="My Portfolio" lead="For more information visit website">
         <p>アプリケーションをご覧の方はこちらへどうぞ</p>
         <b-button  variant="primary" href="/">TopPage</b-button>
       </b-jumbotron>
+      <div class="container">
       <!-- ここから -->
       <div class="col-lg-6 mx-auto ">
-        <div class="progress">
-          <div
-            class="progress-bar progress-bar-striped progress-bar-animated"
-            role="progressbar"
-            aria-valuenow="75"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            style="width: 75%"
-          />
+          <div class="text-center">
+            <b-spinner 
+            v-if="isLoading"
+            variant="primary" 
+            type="grow" 
+            label="Spinning"
+            >
+          </b-spinner>
+          </div>
         </div>
         <h1>Hello</h1>
         <form @submit.prevent>
@@ -51,8 +51,7 @@
       </form>
       </div>
       <!-- ここまで -->
-    </v-app>
-  </div>
+   </div>
 </template>
 
 
@@ -77,6 +76,7 @@ export default {
   },
   methods: {
     login() {
+      this.isLoading = true
       this.$store.dispatch('user/login', this.account)
       .catch(error => {
         this.isError = true
