@@ -10,6 +10,13 @@
 			<ul class="actions">
 				<li><nuxt-link to="about" class="button">詳しくはこちら</nuxt-link></li>
 			</ul>
+      <b-spinner 
+      v-if="loading"
+      variant="primary" 
+      type="grow" 
+      label="Spinning"
+      >
+    </b-spinner>
 		</section>
     <Articles :posts="loadedContents" />
      <ul class="actions">
@@ -39,10 +46,11 @@ export default {
       posts: []
     }
   },
-
   computed: {
-    ...mapGetters('user', ['loadedContents'])
-      
+    ...mapGetters('user', ['loadedContents']),
+        loading () {
+        this.$store.getters.loading
+      }
     }
 }
 </script>

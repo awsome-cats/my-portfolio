@@ -23,7 +23,7 @@ export default {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#fff' },
+  loading: { color: '#9ccc65', height: '3px' },
   /*
   ** Global CSS
   */
@@ -38,7 +38,7 @@ export default {
     '~/plugins/vee-validate'
   ],
   router: {
-    middleware: 'auth'
+    middleware: 'check-auth'
   },
   /*
   ** Nuxt.js dev-modules

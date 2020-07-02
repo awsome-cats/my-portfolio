@@ -1,9 +1,8 @@
 <template>
   <div class="container">
     <div>
-       <h1 class="mb-5 text-center">更新ページ</h1>
+       <h5 class="mb-5 mt-5 text-center">更新ページ</h5>
     </div>
-   
     <section>
       <adminPostForm
       :post="loadedContents"

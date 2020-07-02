@@ -9,7 +9,7 @@
       <div class="col-lg-6 mx-auto ">
         <div class="text-center">
           <b-spinner 
-          v-if="isLoading"
+          v-if="loading"
           variant="primary" 
           type="grow" 
           label="Spinning"
@@ -18,6 +18,7 @@
         </div>
       </div>
       <h1>Hello</h1>
+      <!-- FORM -->
       <form @submit.prevent>
         <div class="form-group">
           <input
@@ -49,11 +50,12 @@
             {{ errors.first('password') }}
           </p>
         </div>
-        <div class="form-group">
-          <b-button @click="login" variant="primary">ログイン</b-button>
+        <div 
+        class="form-group">
+          <b-button @click="login" :disabled="loading" variant="primary">ログイン</b-button>
         </div>
-        <div v-if="isError" class="alert alert-danger">
-          {{ errMsg }}
+        <div v-if="error" class="alert alert-danger">
+          {{ error }}
         </div>
         <nuxt-link to="/about">
           About page
@@ -68,11 +70,9 @@
 <script>
 
 export default {
+  middleware: 'auth',
     data () {
       return {
-        isLoading: false,
-        isError: false,
-        errMsg: '',
         account: {
           email: '',
           password: ''
@@ -80,13 +80,25 @@ export default {
       }
     },
   computed: {
-    // hasErrors () {
-    //   return this.errors.length > 0
-    // }
+    isAuthenticated() {
+      return this.$store.getters['user/isAuthenticated']
+    },
+    loading () {
+      return this.$store.getters.loading
+    },
+    error () {
+      return this.$store.getters.error
+    }
+  },
+  watch:{
+    isAuthenticated(value) {
+      setTimeout(() => {
+        this.$router.push('/admin')
+      },2000)
+    }
   },
   methods: {
     login() {
-      this.isLoading = true
       this.$validator.validateAll()
       .then(result => {
         if (result) {
@@ -94,16 +106,9 @@ export default {
         }
       })
       .catch(error => {
-        this.isError = true
-        this.errMsg = error.message
         setTimeout(() => {
-          this.isError = false
+          console.log(error)
         }, 5000)
-      })
-      .then(() => {
-        setTimeout(() => {
-          this.$router.push('/admin')
-        }, 2000)
       })
     }
   }

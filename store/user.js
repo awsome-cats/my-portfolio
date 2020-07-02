@@ -1,4 +1,6 @@
-import Cookie from 'js-cookie'
+import md5 from 'md5'
+import {db} from '@/services/firebase'
+import { saveUserData, clearUserData } from '@/utils'
 /**
  * --state--
  * @ user
@@ -26,24 +28,24 @@ export const state = () => ({
 
 export const mutations = {
 
-  setUser(state, account) {
-   state.user = account
- },
-
+  setUser(state, payload) {
+   state.user = payload
+  },
+  clearUser(state) {
+   state.user = null
+  },
   setToken(state, token) {
     state.token = token
   },
   clearToken(state) {
     state.token = null
   },
-
   addPost(state, post) {
     state.loadedContents.push(post)
   },
   setPosts(state, post) {
     state.loadedContents = post
   },
-
   editPost(state, editedPost ) {
     const postIndex = state.loadedContents.findIndex(post => post.id === editedPost.id)
     state.loadedContents[postIndex] = editedPost
@@ -54,7 +56,7 @@ export const mutations = {
  * --Actions--
  * @newPost: 新規投稿
  * @editedPost: 編集、更新機能
- * @login: ログイン機能
+ * @login: ログイン機能 realTime database
  * @logout: ログアウト機能
  * @initAuth: tokenをgetしてmiddlewareで使用
  * 
@@ -70,50 +72,45 @@ export const actions = {
       vuexContext.commit('addPost', { ...post, id: data.name })
 
     }catch(error) {
-      console.log(error)
+      commit('setError', error)
     }
   },
-
-  
-
-
-  login ({ commit }, account) {
-    const authUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + process.env.FB_API_KEY
-
-    return this.$axios.$post(authUrl, {
-      email: account.email,
-      password: account.password,
-      returnSecureToken: true
-    })
-    .then((result) => {
-     
-      Cookie.set('access_token', result.idToken)
-      Cookie.set('expirationData', new Date().getTime() + Number.parseInt(result.expiresIn) * 1000)
-
-      localStorage.setItem('access_token', result.idToken)
-      localStorage.setItem('tokenExpiration', new Date().getTime() + Number.parseInt(result.expiresIn) * 1000)
+  async login ({ commit }, account) {
+    try {
       
-      const { email, displayName, idToken } = result
+      commit('setLoading', true, { root: true })
       
-      commit('setUser', { email, displayName, idToken })
-      commit('setToken', result.idToken)
+      const authUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + process.env.FB_API_KEY
+
+      const authUserData = await this.$axios.$post(authUrl, {
+        email: account.email,
+        password: account.password,
+        returnSecureToken: true
+      })
       
-    })
-    .catch((error) => {
-      console.log(error)
-    })
+      let user
+      const avatar = `http://gravatar.com/avatar/${ md5(authUserData.email) }?d=identicon`
+        user = { email: authUserData.email, avatar}
+        // const loginRef = await db.ref(`users/${authUserData.localId}`)
+        // const  loggedInUser = await loginRef.get()
+        // user = loggedInUser.data()
+        commit('setUser', user)
+        commit('setToken', authUserData.idToken)
+        commit('setLoading', false, { root: true })
+        saveUserData(authUserData, user)
+    } catch(error) {
+      commit('setError', error, { root: true })
+      commit('setLoading', false, { root: true })
+    }
+  },
+  setLogoutTimer ({ dispatch}, interval) {
+    setTimeout(() => dispatch('logout'), interval)
   },
 
   async logout({ commit }) {
     commit('clearToken')
-      await Cookie.remove('access_token')
-      await Cookie.remove('expirationData')
-    if(process.client) {
-      await localStorage.removeItem('access_token')
-      await localStorage.removeItem('tokenExpiration')
-    }
-    
-
+    commit('clearUser')
+    clearUserData()
   },
 
   async editedPost(vuexContext, editedPost ) {
@@ -121,7 +118,7 @@ export const actions = {
       await this.$axios.$put(process.env.FB_URL + '/post/' + editedPost.id + '/.json?auth=' + vuexContext.state.token, editedPost)
       vuexContext.commit('editPost', editedPost)
     }catch(error) {
-      console.log(error)
+      commit('setError', error, { root: true })
     }
   }
 }
@@ -137,12 +134,15 @@ export const actions = {
 
 export const getters = {
  
-  setUser(state) {
+  user (state) {
    return state.user
   },
  
   setToken (state) {
     return state.token
+  },
+  isAuthenticated(state) {
+    return !!state.token
   },
   setUid (state) {
    if(state.user && state.user.uid) {
@@ -151,5 +151,8 @@ export const getters = {
   },
   loadedContents(state) {
     return state.loadedContents
+  },
+  loginStatus (state) {
+    return state.user !== null && state.user !== undefined
   }
 }

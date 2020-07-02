@@ -21,9 +21,11 @@
     "firebase": "^7.14.4",
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
+    "md5": "^2.2.1",
     "mime-types": "^2.1.27",
     "nuxt": "^2.0.0",
-    "uuid": "^8.1.0"
+    "uuid": "^8.1.0",
+    "vee-validate": "^2.0.6"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.2"
