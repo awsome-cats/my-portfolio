@@ -8,4 +8,6 @@ export default function ({ store, route, redirect }) {
   if (user && route.path === loginRoute) {
     return redirect('/admin')
   }
+
+  
 }

@@ -1,6 +1,6 @@
 <template>
   <section id="two">
-    <h2>Recent Work</h2>
+    <h4>Recent Work</h4>
     <div class="row">
       <ContentPreview
       v-for="post in posts"

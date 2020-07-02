@@ -3,10 +3,7 @@
   <v-card class="mx-auto mt-6"
     max-width="600">
     <v-card-text>
-      <div>投稿フォーム</div>
-      <p class="display-1 text--primary">
-        Portfolio 作品
-      </p>
+      <div>{{header}}</div>
     </v-card-text>
     <v-form ref="form" @submit.prevent="onSave">
       <v-container fluid>
@@ -97,6 +94,10 @@ export default {
     post: {
       type: Object,
       required: false
+    },
+    header: {
+      type: String,
+      default: '更新フォーム'
     }
   },
   data() {
